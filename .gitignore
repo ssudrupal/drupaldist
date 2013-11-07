@@ -35,3 +35,8 @@ xmlrpc.php
 /profiles
 /scripts
 /themes
+
+# Ignore common editor temp files and whatnot:
+*~
+*.swp
+.DS_Store
