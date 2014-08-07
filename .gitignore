@@ -7,7 +7,11 @@
 */sites/*/files
 */sites/*/private
 
+# We automatically generate this
+*/sites/.gitignore
+
 # Ignore common editor temp files and whatnot:
 *~
 *.swp
 .DS_Store
+
