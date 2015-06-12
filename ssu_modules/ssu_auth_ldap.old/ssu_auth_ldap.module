@@ -1,0 +1,7 @@
+<?php
+/**
+ * @file
+ * Code for the SSU Auth LDAP feature.
+ */
+
+include_once 'ssu_auth_ldap.features.inc';
