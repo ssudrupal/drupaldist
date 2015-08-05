@@ -200,14 +200,8 @@ class Reservation {
    *   if the record already exists.
    */
   public function __construct($id = NULL) {
-    $mobile_db = _room_reservations_detect_mobile_db();
-    if ($mobile_db) {
-      $mainsite = trim(_room_reservations_get_variable('main_database'));
-      db_set_active($mainsite);
-    }
     if ($id) {
-      $sql = "SELECT * FROM {room_reservations} WHERE id = :id AND deleted = 'N'
-      ";
+      $sql = "SELECT * FROM {room_reservations} WHERE id = :id AND deleted = 'N'";
       $record_count = 0;
       $results = db_query($sql, array(':id' => $id));
       foreach ($results as $data) {
@@ -216,18 +210,15 @@ class Reservation {
         $this->time = $data->time;
         $this->length = $data->length;
         $this->room = $data->room;
-        $this->name = check_plain($data->name);
+        $this->name = $data->name;
         $this->groupSize = $data->group_size;
         $this->userName = $data->user_name;
-        $this->emailAddresses = check_plain($data->email_addresses);
+        $this->emailAddresses = $data->email_addresses;
         $this->textmsg = $data->textmsg;
         $this->carrier = $data->carrier;
-        $this->phone = check_plain($data->phone);
+        $this->phone = $data->phone;
         $record_count++;
       }
-    }
-    if ($mobile_db) {
-      db_set_active('default');
     }
   }
 }
@@ -242,15 +233,26 @@ function _room_reservations_categories() {
   $categories = array();
   $query = new EntityFieldQuery();
   $query->entityCondition('entity_type', 'node')
-    ->entityCondition('bundle', 'room_reservations_category')   
+    ->entityCondition('bundle', 'room_reservations_category') 
+    // this partially makes sense - do not show Categories which are unpublished
+    // issue will be that Rooms maybe be published with categories that aren't.. which will be a mess
+    //->propertyCondition('status', NODE_PUBLISHED)  
+    
     // dangerous as this does more than Order By as it does not include records which do not have this field set
-    ->fieldOrderBy('reservation_display_order', 'value', 'ASC');
+    // so let's make sure the Order field is REQUIRED
+    ->fieldOrderBy('reservations_display_order', 'value', 'ASC');
   $result = $query->execute();
   if (isset($result['node'])) {
     $cids = array_keys($result['node']);
     $cat_objs = node_load_multiple($cids);
     foreach ($cat_objs as $cat) {
-      $categories[] = (array) $cat;  
+      $categories[$cat->nid] = array(
+        'nid' => $cat->nid,
+        'title' => check_plain($cat->title),
+        'advmin' => isset($cat->reservations_minadvbooking['und'][0]['value']) ? $cat->reservations_minadvbooking['und'][0]['value'] : 0,
+        'prebuffer' => $cat->reservations_prebuffer['und'][0]['value'],
+        'postbuffer' => $cat->reservations_postbuffer['und'][0]['value'],
+      );  
     }
   }
   return $categories;
@@ -266,15 +268,16 @@ function _room_reservations_rooms() {
   $rooms = array();
   $query = new EntityFieldQuery();
   $query->entityCondition('entity_type', 'node')
-    ->entityCondition('bundle', 'room_reservations_room')   
+    ->entityCondition('bundle', 'room_reservations_room')  
+    ->propertyCondition('status', NODE_PUBLISHED) 
     // dangerous as this does more than Order By as it does not include records which do not have this field set
-    ->fieldOrderBy('reservation_display_order', 'value', 'ASC');
+    ->fieldOrderBy('reservations_display_order', 'value', 'ASC');
   $result = $query->execute();
   if (isset($result['node'])) {
     $rids = array_keys($result['node']);
     $room_objs = node_load_multiple($rids);
     foreach ($room_objs as $room) {
-      $rooms[] = (array) $room;  
+      $rooms[$room->nid] = (array) $room;  
     }
   }
   return $rooms;
@@ -389,6 +392,10 @@ function _room_reservations_create_mo_hours($year, $month, $yyyy_mm, $array = fa
  *
  * Create an array containing pertinent information about all the
  * possible days for which a reservation can be made.
+ * 
+ * 7.x-1.3 REV:
+ *  - start of adding features on a per Category basis
+ *  - for now let's just key this date's array by Cat ID
  *
  * @param int $selected_month
  *   The month of the day currently selected by the user
@@ -401,48 +408,53 @@ function _room_reservations_create_mo_hours($year, $month, $yyyy_mm, $array = fa
  *   date in the format YYYY-MM-DD, whether the day is currently selected by
  *   the user, and whether the day is today.
  */
-function _room_reservations_dates($selected_month = NULL, $selected_day = NULL) {
+function _room_reservations_dates($selected_month = NULL, $selected_day = NULL, $keyed = false) {
   // Determine date information (month, day, year, etc.) for each of these days.
+  $categories = _room_reservations_categories();
   $dates = array();
-    if (user_access('create room reservations extended')) {
-    $advancedays = variable_get('room_reservations_advance_extended', 180);
-  }
-  else {
-    $advancedays = variable_get('room_reservations_advance_standard', 14);
-  }
-  for ($j = 0; $j < $advancedays; $j++) {
-    $day = array();
-    $day['display'] = date("l, n/j", strtotime("now + " . $j . " days"));
-    $day['day-of-week'] = date("l", strtotime("now + " . $j . " days"));
-    $day['month'] = date("F", strtotime("now + " . $j . " days"));
-    $month_number = date("n", strtotime("now + " . $j . " days"));
-    $day['month-number'] = $month_number;
-    $sday = date("j", strtotime("now + " . $j . " days"));
-    $day['day'] = $sday;
-    $year = date("Y", strtotime("now + " . $j . " days"));
-    $day['year'] = $year;
-    // Determine the date selected by the user.  If none selected, default to
-    // the first day.
-    if (($j == 0) && (!$selected_month) && (!$selected_day)) {
-      $day['selected'] = TRUE;
+  foreach ($categories as $cat) {
+    $advancedaysmax = user_access('create room reservations extended') 
+      ? variable_get('room_reservations_advance_extended', 180) 
+      : variable_get('room_reservations_advance_standard', 14);
+    $advancedaysmin = user_access('bypass minimum advance booking') ? 0 : $cat['advmin'];
+    for ($j = $advancedaysmin; $j < $advancedaysmax; $j++) {
+      $day = array();
+      $day['display'] = date("l, n/j", strtotime("now + " . $j . " days"));
+      $day['day-of-week'] = date("l", strtotime("now + " . $j . " days"));
+      $day['month'] = date("F", strtotime("now + " . $j . " days"));
+      $month_number = date("n", strtotime("now + " . $j . " days"));
+      $day['month-number'] = $month_number;
+      $sday = date("j", strtotime("now + " . $j . " days"));
+      $day['day'] = $sday;
+      $year = date("Y", strtotime("now + " . $j . " days"));
+      $day['year'] = $year;
+      // Determine the date selected by the user.  If none selected, default to the first day.
+      if (($j == 0) && (!$selected_month) && (!$selected_day)) {
+        $day['selected'] = TRUE;
+      }
+      elseif (($selected_month == $month_number) && ($selected_day == $sday)) {
+        $day['selected'] = TRUE;
+      }
+      else {
+        $day['selected'] = FALSE;
+      }
+      // The date in YYYY-MM-DD format.
+      if ($month_number < 10) {
+        $month_number = str_pad($month_number, 2, '0', STR_PAD_LEFT);
+      }
+      if ($sday < 10) {
+        $sday = str_pad($sday, 2, '0', STR_PAD_LEFT);
+      }
+      $day['yyyymmdd'] = $year . "-" . $month_number . "-" . $sday;
+      $day['today'] = (($day['month-number'] == date('m')) &&
+        ($day['day'] == date('j'))) ? TRUE : FALSE;
+      if ($keyed) {
+        $dates[$cat['nid']][$day['yyyymmdd']] = $day;
+      }
+      else {
+        $dates[$cat['nid']][] = $day;
+      }
     }
-    elseif (($selected_month == $month_number) && ($selected_day == $sday)) {
-      $day['selected'] = TRUE;
-    }
-    else {
-      $day['selected'] = FALSE;
-    }
-    // The date in YYYY-MM-DD format.
-    if ($month_number < 10) {
-      $month_number = str_pad($month_number, 2, '0', STR_PAD_LEFT);
-    }
-    if ($sday < 10) {
-      $sday = str_pad($sday, 2, '0', STR_PAD_LEFT);
-    }
-    $day['yyyymmdd'] = $year . "-" . $month_number . "-" . $sday;
-    $day['today'] = (($day['month-number'] == date('m')) &&
-      ($day['day'] == date('j'))) ? TRUE : FALSE;
-    $dates[] = $day;
   }
   return $dates;
 }
@@ -477,8 +489,9 @@ function _room_reservations_hours($option = NULL) {
     }
     $minutes = ($y % 2) ? '30' : '00';
     $time = $hour . $minutes;
-    $ampm = ($y < 24) ? 'AM' : 'PM';
+    $ampm = ($y < 24) ? t('AM') : t('PM');
     if ($y == 0) {
+      // these shouldn't be wrapped in t() since we are just about to do a date() with them anyway
       $display = 'Midnight';
     }
     elseif ($y == 24) {
@@ -487,6 +500,12 @@ function _room_reservations_hours($option = NULL) {
     else {
       $display = $display_hour . ':' . $minutes . ' ' . $ampm;
     }
+    
+    // convert display to 24:00 format if required
+    if (variable_get('room_reservations_hour_format', 0)) {
+      $display = date('H:i', strtotime($display));
+    }
+    
     $class = ($y % 2) ? 'even' : 'odd';
     $hours_node_time = $display_hour . ':' . $minutes . $ampm;
     $hours_entry['time'] = $time;
@@ -504,7 +523,9 @@ function _room_reservations_hours($option = NULL) {
   // Only return time slots that are greater than the current time minus
   // the maximum reservation length.
   if ($option == 'limited') {
-    $max_length = variable_get('room_reservations_max_length', 120);
+    $max_length = user_access('create room reservations extended length') 
+      ? variable_get('room_reservations_max_length_extended', 120) 
+      : variable_get('room_reservations_max_length_standard', 120);
     $margin_time = ($max_length / 60) * 100;
     if ($max_length % 60) {
       $margin_time += 30;
@@ -548,10 +569,15 @@ function _room_reservations_facility_hours($reset = FALSE) {
   static $building_hours;
   if (!isset($building_hours) || $reset) {
     $building_hours = array();
-    $advance_days = variable_get('room_reservations_advance_days', 180);
+    if (user_access('create room reservations extended')) {
+      $advancedays = variable_get('room_reservations_advance_extended', 180);
+    }
+    else {
+      $advancedays = variable_get('room_reservations_advance_standard', 14);
+    }
     
     // build a list of the months we need to look at
-    for ($x = 0; $x < $advance_days; $x++) { 
+    for ($x = 0; $x < $advancedays; $x++) { 
       $months[] = date('Y_m', mktime(0, 0, 0, date("m"), date("d") + $x, date("Y")));
     }
     $months = array_unique($months);
@@ -572,7 +598,7 @@ function _room_reservations_facility_hours($reset = FALSE) {
       }
     }
     $start = (date('j') - 1) * 5;
-    for ($x = 0; $x < $advance_days; $x++) {
+    for ($x = 0; $x < $advancedays; $x++) {
       $yyyymmdd  = date('Y-m-d', mktime(0, 0, 0, date("m"), date("d") + $x, date("Y")));
       $first_shift_open = $mo_hours[($start + ($x * 5) + 1)];
       $first_shift_close = $mo_hours[($start + ($x * 5) + 2)];
@@ -884,7 +910,7 @@ function _room_reservations_start_conflicts($room, $yyyymmdd, $time) {
   // Since reservations are limited to 2 hours, we are interested in times that
   // are less than or equal to the reservation time and greater than or equal
   // to 90 minutes before the reservation time.
-  $max_length = variable_get('room_reservations_max_length', 120);
+      $max_length = user_access('create room reservations extended length') ? variable_get('room_reservations_max_length_extended', 120) : variable_get('room_reservations_max_length_standard', 120);
   $max_slots = $max_length / 30;
   $search_items = array();
   for ($x = 0; $x < 8; $x++) {
@@ -916,14 +942,8 @@ function _room_reservations_start_conflicts($room, $yyyymmdd, $time) {
     $search_items[] = $search_item;
     $time_slot = array_pop($hours);
   }
-  $mobile_db = _room_reservations_detect_mobile_db();
-  if ($mobile_db) {
-    $mainsite = trim(_room_reservations_get_variable('main_database'));
-    db_set_active($mainsite);
-  }
   $sql = "
-    SELECT id
-    FROM {room_reservations}
+    SELECT id FROM {room_reservations}
     WHERE (
     (deleted = 'N' AND room = :room AND date = :date0 AND	time = :time0 AND length > :length0)
     OR
@@ -954,9 +974,6 @@ function _room_reservations_start_conflicts($room, $yyyymmdd, $time) {
     ':date6' => $search_items[6]['date'], ':time6' => $search_items[6]['start_time'], ':length6' => $search_items[6]['length'],
     ':date7' => $search_items[7]['date'], ':time7' => $search_items[7]['start_time'], ':length7' => $search_items[7]['length'])
   )->rowCount();
-  if ($mobile_db) {
-    db_set_active('default');
-  }
   return $conflicts_found;
 }
 
@@ -990,7 +1007,15 @@ function _room_reservations_start_conflicts($room, $yyyymmdd, $time) {
  *   reservation being made.
  */
 function _room_reservations_valid_lengths($rid, $yyyymmdd, $time, $id = NULL, $all = FALSE) {
-  $max_length = variable_get('room_reservations_max_length', 120);
+  // let's first ensure this is a valid RID
+  $rooms = _room_reservations_rooms();
+  if (!isset($rooms[$rid])) {
+    return null;  
+  }
+  
+  $max_length = user_access('create room reservations extended length') 
+    ? variable_get('room_reservations_max_length_extended', 120) 
+    : variable_get('room_reservations_max_length_standard', 120);
   $max_slots = $max_length / 30;
   $valid_lengths = array();
   for ($x = 30; $x <= $max_length; $x += 30) {
@@ -999,8 +1024,7 @@ function _room_reservations_valid_lengths($rid, $yyyymmdd, $time, $id = NULL, $a
       'is_valid' => TRUE,
     );
   }
-  // Divide the maximum reservation length into 30 minute time slots
-  // and determine the start date and time of each of these slots.
+  // Divide the maximum reservation length into 30 minute time slots and determine the start date and time of each of these slots.
   $search_items = array();
   // Time slots for the first day.
   $day = $yyyymmdd;
@@ -1042,15 +1066,8 @@ function _room_reservations_valid_lengths($rid, $yyyymmdd, $time, $id = NULL, $a
     }
   }
   
-  // Determine if the reservation at each possible length would conflict with
-  // another reservtion.  If so, set is_valid for that length to FALSE.
-  // The first time slot has already been validated and does not need to be
-  // checked again.
-  $mobile_db = _room_reservations_detect_mobile_db();
-  if ($mobile_db) {
-    $mainsite = trim(_room_reservations_get_variable('main_database'));
-    db_set_active($mainsite);
-  }
+  // Determine if the reservation at each possible length would conflict with another reservation.  If so, set is_valid for that length to FALSE.
+  // The first time slot has already been validated and does not need to be checked again.
   if ($all) {
     $start = 0;
   }
@@ -1070,7 +1087,17 @@ function _room_reservations_valid_lengths($rid, $yyyymmdd, $time, $id = NULL, $a
         ->entityCondition('bundle', 'room_reservations_reservation')   
         ->fieldCondition('reservation_date', 'value', $date, '=')     
         ->fieldCondition('reservation_time', 'value', $start_time, '=')         
-        ->fieldCondition('reservation_room', 'target_id', $rid, '=');
+        ->fieldCondition('reservation_room', 'target_id', $rid, '=')
+        // EFQ respects access so let's load the reservations as user 1 to make sure we get them all
+        ->addMetaData('account', user_load(1));
+      // if editing a reservation (series) we need to not include any of the reservations in current series
+      if (arg(2) == 'edit') {
+        $nid = arg(1);
+        $res = node_load($nid);
+        if (isset($res->reservation_series_id['und'][0]['value']) && $sid = $res->reservation_series_id['und'][0]['value']) {
+          $query->fieldCondition('reservation_series_id', 'value', $sid, '!=');
+        }
+      }     
       $result = $query->execute();
       if (isset($result['node'])) {
         $conflicts_found = true;
@@ -1080,8 +1107,26 @@ function _room_reservations_valid_lengths($rid, $yyyymmdd, $time, $id = NULL, $a
       }
     }
   }
-  if ($mobile_db) {
-    db_set_active('default');
+  // need to limit these valid lengths by a prebuffer if it exists for the category this room is in
+  // but only if not permissions to do this
+  if (!user_access('book over buffer')) {
+    $categories = _room_reservations_categories();
+    $rooms = _room_reservations_rooms();
+    $category = $categories[$rooms[$rid]['reservations_room_category']['und'][0]['target_id']];
+    $preslots = $category['prebuffer'] / 30;
+    if ($preslots) {
+      foreach ($valid_lengths as $index => $length) {
+        if ($length['is_valid'] == false) {
+          $last = $index;
+          break;
+        }
+      }
+      if (isset($last)) {
+        for ($x = $last - $preslots; $x <= $last; $x++) {
+          $valid_lengths[$x]['is_valid'] = false;
+        }
+      }
+    }
   }
 
   // Determine if the reservation at each possible length would conflict with
@@ -1180,23 +1225,9 @@ function _room_reservations_daily_max_exceeded($yyyymmdd) {
   }
   global $user;
   $record_count = 0;
-  $mobile_db = _room_reservations_detect_mobile_db();
-  if ($mobile_db) {
-    $mainsite = trim(_room_reservations_get_variable('main_database'));
-    db_set_active($mainsite);
-  }
   if ($user->uid) {
-    $sql = "
-      SELECT id
-      FROM {room_reservations}
-      WHERE user_name = :name
-      AND date = :date
-      AND deleted = 'N'
-    ";
+    $sql = "SELECT id FROM {room_reservations} WHERE user_name = :name AND date = :date AND deleted = 'N'";
     $record_count = db_query($sql, array(':name' => $user->name, ':date' => $yyyymmdd))->rowCount();
-  }
-  if ($mobile_db) {
-    db_set_active('default');
   }
   if ($record_count < $max) {
     return FALSE;
@@ -1250,11 +1281,6 @@ function _room_reservations_user_reservations() {
   $user_reservations = array();
   $all_hours = _room_reservations_hours();
   global $user;
-  $mobile_db = _room_reservations_detect_mobile_db();
-  if ($mobile_db) {
-    $mainsite = trim(_room_reservations_get_variable('main_database'));
-    db_set_active($mainsite);
-  }
   if ($user->uid) {
     $earliest_date = date('Y-m-d', strtotime(date('Y-m-d')));
     $latest_date = date('Y-m-d', strtotime("now +13 days"));
@@ -1273,12 +1299,12 @@ function _room_reservations_user_reservations() {
       $results = entity_load('node', $result_nids);
       foreach ($results as $data) {
         $reservation = array();
-        $reservation['id'] = $data->id;
-        $unix_timestamp = strtotime($data->date);
+        $reservation['id'] = $data->nid;
+        $unix_timestamp = strtotime($data->reservation_date['und'][0]['value']);
         $reservation['date'] = date("l, n/j", $unix_timestamp);
         $reservation['time'] = '';
         foreach ($all_hours as $time_slot) {
-          if ($time_slot['time'] == $data->time) {
+          if ($time_slot['time'] == $data->reservation_time['und'][0]['value']) {
             $reservation['time'] = $time_slot['display'];
             break;
           }
@@ -1286,9 +1312,6 @@ function _room_reservations_user_reservations() {
         $user_reservations[] = $reservation;
       }
     }
-  }
-  if ($mobile_db) {
-    db_set_active('default');
   }
   return $user_reservations;
 }
@@ -1303,11 +1326,6 @@ function _room_reservations_user_reservations() {
  *   An array representing the carriers.
  */
 function _room_reservations_carriers() {
-  $mobile_db = _room_reservations_detect_mobile_db();
-  if ($mobile_db) {
-    $mainsite = trim(_room_reservations_get_variable('main_database'));
-    db_set_active($mainsite);
-  }
   $carriers = array();
   $sql = "SELECT * FROM {room_reservations_variables} WHERE name = 'carrier' ORDER BY value";
   $results = db_query($sql);
@@ -1315,9 +1333,6 @@ function _room_reservations_carriers() {
     $carrier = explode('~', $data->value);
     $id = $data->id;
     $carriers[$id] = check_plain($carrier[0]);
-  }
-  if ($mobile_db) {
-    db_set_active('default');
   }
   return $carriers;
 }
@@ -1335,11 +1350,6 @@ function _room_reservations_carriers() {
  *   The email address of the user's wireless carrier.
  */
 function _room_reservations_carrier_address($carrier) {
-  $mobile_db = _room_reservations_detect_mobile_db();
-  if ($mobile_db) {
-    $mainsite = trim(_room_reservations_get_variable('main_database'));
-    db_set_active($mainsite);
-  }
   $carrier_address = '';
   $sql = "SELECT * FROM {room_reservations_variables} WHERE name = 'carrier' ORDER BY id";
   $results = db_query($sql);
@@ -1350,9 +1360,6 @@ function _room_reservations_carrier_address($carrier) {
       $carrier_address = check_plain($car[1]);
       break;
     }
-  }
-  if ($mobile_db) {
-    db_set_active('default');
   }
   return $carrier_address;
 }
@@ -1380,8 +1387,7 @@ function _room_reservations_send_sms($message_type, $params) {
       _room_reservations_get_variable('reminder_text_sms')), $params);
   }
   $message = wordwrap($message_body, 70);
-  $from = $from = check_plain(
-    _room_reservations_get_variable('from_address_sms'));
+  $from = _room_reservations_get_variable('from_address_sms');
   $headers = "From: " . $from;
   mail($to, $subject, $message, $headers);
 }
@@ -1428,8 +1434,7 @@ function _room_reservations_replace_tokens($text, $parameters) {
  */
 function _room_reservations_default_email() {
   $default_option = _room_reservations_get_variable('default_email_address');
-  $default_domain = check_plain(
-    _room_reservations_get_variable('default_email_domain'));
+  $default_domain = _room_reservations_get_variable('default_email_domain');
   if (!isset($default_option)) {
     return '';
   }
@@ -1522,42 +1527,6 @@ function _room_reservations_delete_variable($key) {
   return FALSE;
 }
 
-/**
- * Determine if the current user is accessing the mobile site.
- */
-function _room_reservations_detect_mobile() {
-  global $base_url;
-  $url = explode('://', $base_url);
-  $mobile_url = trim(_room_reservations_get_variable('mobile_url'));
-  if ($url[1] == $mobile_url) {
-    return TRUE;
-  }
-  else {
-    return FALSE;
-  }
-}
-
-/**
- * Is user accessing the mobile site and does it use a separate database.
- */
-function _room_reservations_detect_mobile_db() {
-  global $base_url;
-  $url = explode('://', $base_url);
-  $mobile_url = trim(_room_reservations_get_variable('mobile_url'));
-  if ($url[1] == $mobile_url) {
-    $main_database = _room_reservations_get_variable('main_database');
-    if ($main_database) {
-      return TRUE;
-    }
-    else {
-      return FALSE;
-    }
-  }
-  else {
-    return FALSE;
-  }
-}
-
 function _room_reservations_is_slot_free($rid, $yyyymmdd, $time, $length) {
   $slots = _room_reservations_valid_lengths($rid, $yyyymmdd, $time, NULL, true);
   foreach ($slots as $slot) {
@@ -1566,4 +1535,18 @@ function _room_reservations_is_slot_free($rid, $yyyymmdd, $time, $length) {
     }
   }
   return false;
+}
+
+function _room_reservations_yyyymmdd($month, $day) {
+  // determine if this year or next year
+  $yearnow = date('Y');
+  $absdaynow = date('z');
+  $absdaydefault = date('z', mktime(0, 0, 0, $month, $day, $yearnow));
+  if ($absdaynow > $absdaydefault) {
+    $year = $yearnow + 1;
+  }
+  else {
+    $year = $yearnow;
+  }
+  return date('Y-m-d', strtotime($year . '-' . $month . '-' . $day));
 }

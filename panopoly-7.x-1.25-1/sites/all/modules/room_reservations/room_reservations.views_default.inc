@@ -33,17 +33,17 @@ function room_reservations_views_default_views() {
   $handler->display->display_options['style_plugin'] = 'default';
   $handler->display->display_options['style_options']['grouping'] = array(
     0 => array(
-      'field' => 'room_category',
+      'field' => 'reservations_room_category',
       'rendered' => 1,
       'rendered_strip' => 0,
     ),
   );
   $handler->display->display_options['row_plugin'] = 'fields';
   /* Relationship: Entity Reference: Referenced Entity */
-  $handler->display->display_options['relationships']['room_category_target_id']['id'] = 'room_category_target_id';
-  $handler->display->display_options['relationships']['room_category_target_id']['table'] = 'field_data_room_category';
-  $handler->display->display_options['relationships']['room_category_target_id']['field'] = 'room_category_target_id';
-  $handler->display->display_options['relationships']['room_category_target_id']['label'] = 'category';
+  $handler->display->display_options['relationships']['reservations_room_category_target_id']['id'] = 'reservations_room_category_target_id';
+  $handler->display->display_options['relationships']['reservations_room_category_target_id']['table'] = 'field_data_reservations_room_category';
+  $handler->display->display_options['relationships']['reservations_room_category_target_id']['field'] = 'reservations_room_category_target_id';
+  $handler->display->display_options['relationships']['reservations_room_category_target_id']['label'] = 'category';
   /* Field: Content: Title */
   $handler->display->display_options['fields']['title']['id'] = 'title';
   $handler->display->display_options['fields']['title']['table'] = 'node';
@@ -58,25 +58,25 @@ function room_reservations_views_default_views() {
   $handler->display->display_options['fields']['body']['label'] = '';
   $handler->display->display_options['fields']['body']['element_label_colon'] = FALSE;
   /* Field: Content: Capacity */
-  $handler->display->display_options['fields']['room_capacity']['id'] = 'room_capacity';
-  $handler->display->display_options['fields']['room_capacity']['table'] = 'field_data_room_capacity';
-  $handler->display->display_options['fields']['room_capacity']['field'] = 'room_capacity';
-  $handler->display->display_options['fields']['room_capacity']['element_type'] = 'span';
+  $handler->display->display_options['fields']['reservations_room_capacity']['id'] = 'reservations_room_capacity';
+  $handler->display->display_options['fields']['reservations_room_capacity']['table'] = 'field_data_reservations_room_capacity';
+  $handler->display->display_options['fields']['reservations_room_capacity']['field'] = 'reservations_room_capacity';
+  $handler->display->display_options['fields']['reservations_room_capacity']['element_type'] = 'span';
   /* Field: Content: Category */
-  $handler->display->display_options['fields']['room_category']['id'] = 'room_category';
-  $handler->display->display_options['fields']['room_category']['table'] = 'field_data_room_category';
-  $handler->display->display_options['fields']['room_category']['field'] = 'room_category';
-  $handler->display->display_options['fields']['room_category']['label'] = '';
-  $handler->display->display_options['fields']['room_category']['exclude'] = TRUE;
-  $handler->display->display_options['fields']['room_category']['element_label_colon'] = FALSE;
-  $handler->display->display_options['fields']['room_category']['settings'] = array(
+  $handler->display->display_options['fields']['reservations_room_category']['id'] = 'reservations_room_category';
+  $handler->display->display_options['fields']['reservations_room_category']['table'] = 'field_data_reservations_room_category';
+  $handler->display->display_options['fields']['reservations_room_category']['field'] = 'reservations_room_category';
+  $handler->display->display_options['fields']['reservations_room_category']['label'] = '';
+  $handler->display->display_options['fields']['reservations_room_category']['exclude'] = TRUE;
+  $handler->display->display_options['fields']['reservations_room_category']['element_label_colon'] = FALSE;
+  $handler->display->display_options['fields']['reservations_room_category']['settings'] = array(
     'link' => 0,
   );
   /* Sort criterion: Content: Title */
   $handler->display->display_options['sorts']['title_1']['id'] = 'title_1';
   $handler->display->display_options['sorts']['title_1']['table'] = 'node';
   $handler->display->display_options['sorts']['title_1']['field'] = 'title';
-  $handler->display->display_options['sorts']['title_1']['relationship'] = 'room_category_target_id';
+  $handler->display->display_options['sorts']['title_1']['relationship'] = 'reservations_room_category_target_id';
   /* Sort criterion: Content: Title */
   $handler->display->display_options['sorts']['title']['id'] = 'title';
   $handler->display->display_options['sorts']['title']['table'] = 'node';
@@ -313,11 +313,11 @@ function room_reservations_views_default_views() {
   $handler->display->display_options['relationships']['reservation_room_target_id']['field'] = 'reservation_room_target_id';
   $handler->display->display_options['relationships']['reservation_room_target_id']['label'] = 'room';
   /* Relationship: Entity Reference: Referencing entity */
-  $handler->display->display_options['relationships']['reverse_room_category_node']['id'] = 'reverse_room_category_node';
-  $handler->display->display_options['relationships']['reverse_room_category_node']['table'] = 'node';
-  $handler->display->display_options['relationships']['reverse_room_category_node']['field'] = 'reverse_room_category_node';
-  $handler->display->display_options['relationships']['reverse_room_category_node']['relationship'] = 'reservation_room_target_id';
-  $handler->display->display_options['relationships']['reverse_room_category_node']['label'] = 'room_category';
+  $handler->display->display_options['relationships']['reverse_reservations_room_category_node']['id'] = 'reverse_reservations_room_category_node';
+  $handler->display->display_options['relationships']['reverse_reservations_room_category_node']['table'] = 'node';
+  $handler->display->display_options['relationships']['reverse_reservations_room_category_node']['field'] = 'reverse_reservations_room_category_node';
+  $handler->display->display_options['relationships']['reverse_reservations_room_category_node']['relationship'] = 'reservation_room_target_id';
+  $handler->display->display_options['relationships']['reverse_reservations_room_category_node']['label'] = 'reservations_room_category';
   /* Field: Content: Title */
   $handler->display->display_options['fields']['title']['id'] = 'title';
   $handler->display->display_options['fields']['title']['table'] = 'node';
@@ -328,7 +328,7 @@ function room_reservations_views_default_views() {
   $handler->display->display_options['fields']['title_2']['id'] = 'title_2';
   $handler->display->display_options['fields']['title_2']['table'] = 'node';
   $handler->display->display_options['fields']['title_2']['field'] = 'title';
-  $handler->display->display_options['fields']['title_2']['relationship'] = 'reverse_room_category_node';
+  $handler->display->display_options['fields']['title_2']['relationship'] = 'reverse_reservations_room_category_node';
   $handler->display->display_options['fields']['title_2']['label'] = 'Room Category';
   /* Field: Content: Title */
   $handler->display->display_options['fields']['title_1']['id'] = 'title_1';

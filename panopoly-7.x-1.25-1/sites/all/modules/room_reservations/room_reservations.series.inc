@@ -15,7 +15,7 @@ function room_reservations_insert($node) {
   }
   
   // when we do a node_save below; it will hit this hook; so if this routine just did the save lets bail
-  if ($node->saved){
+  if (isset($node->saved)){
     return;
   }
   
@@ -28,6 +28,7 @@ function room_reservations_insert($node) {
   $rid = $node->reservation_room['und'][0]['target_id'];
   $day = date('l', strtotime($start));
   
+  $msg = '';
   switch ($rtype) {
     // no repeats
     case 1:
@@ -56,6 +57,7 @@ function room_reservations_insert($node) {
   // and must unset default date that we just used in hook_node_presave for the initial node
   unset($tmp->date_default);
   $date = $start;
+  $booked = array();
   while (strtotime($date) <= strtotime($back, strtotime($end))) {
     $date = date('Y-m-d', strtotime($skip, strtotime($date)));
     
@@ -79,7 +81,7 @@ function room_reservations_insert($node) {
   drupal_set_message($msg);
   if (count($booked)) {
     $dates = '<br>' . implode('<br>', $booked);
-    drupal_set_message(t('The following dates were not booked due to scheduling conflicts: !dates', array('!dates' => $dates)));
+    drupal_set_message(t('The following dates were not booked due to scheduling conflicts: !dates', array('!dates' => $dates)), 'warning');
   }
 }
 
@@ -90,12 +92,12 @@ function room_reservations_update($node) {
   }
   
   // when we do a node_save below; it will hit this hook; so if this routine just did the save lets bail
-  if ($node->saved){
+  if (isset($node->saved)){
     return;
   }
   
   // if not part of a Series or special single only url; do nothing
-  if (!($sid = $node->reservation_series_id['und'][0]['value']) || $_GET['single']) {
+  if (!isset($node->reservation_series_id['und'][0]) || !($sid = $node->reservation_series_id['und'][0]['value']) || isset($_GET['single'])) {
     return;
   }
   
@@ -113,6 +115,7 @@ function room_reservations_update($node) {
     ->entityCondition('bundle', 'room_reservations_reservation')   
     ->fieldCondition('reservation_series_id', 'value', $sid, '=');     
   $result = $query->execute();
+  $deleted = array();
   if (isset($result['node'])) {
     $result_nids = array_keys($result['node']);
     $results = entity_load('node', $result_nids);
@@ -138,10 +141,9 @@ function room_reservations_update($node) {
   
   // lets spit out some useful msgs
   drupal_set_message(t('Your reservation series has been modified.'));
-  drupal_set_message($msg);
   if (count($deleted)) {
     $dates = '<br>' . implode('<br>', $deleted);
-    drupal_set_message(t('The following dates were deleted from the series due to scheduling conflicts: !dates', array('!dates' => $dates)));
+    drupal_set_message(t('The following dates were deleted from the series due to scheduling conflicts: !dates', array('!dates' => $dates)), 'warning');
   }  
 }
 
@@ -161,5 +163,29 @@ function _room_reservations_series_delete($form) {
   }
   $title = $form['#node']->title;
   drupal_set_message(t('The reservation series @title was deleted.', array('@title' => $title)));  
+  drupal_goto('room_reservations');
+}
+
+/**
+* copy above function for API use only
+*   - pass SID
+* 
+* @param mixed $sid
+*/
+function room_reservations_series_delete($sid) {
+  // grab all reservations in this series
+  $query = new EntityFieldQuery();
+  $query->entityCondition('entity_type', 'node')
+    ->entityCondition('bundle', 'room_reservations_reservation')   
+    ->fieldCondition('reservation_series_id', 'value', $sid, '=');     
+  $result = $query->execute();
+  if (isset($result['node'])) {
+    $nids = array_keys($result['node']);
+    foreach ($nids as $nid) {
+      node_delete($nid);
+    }
+  }
+  $res = node_load($sid);
+  drupal_set_message(t('The reservation series @title was deleted.', array('@title' => $res->title)));  
   drupal_goto('room_reservations');
 }

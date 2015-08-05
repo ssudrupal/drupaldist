@@ -4,8 +4,7 @@
 Room Reservations is an application for making and managing room reservations.
 It enables users to view a calendar of reserved and open rooms by day, and to
 make, modify, and cancel room reservations. Confirmation of reservations and
-reminders can be sent to multiple parties by email and SMS text message. The
-application can be used in either full desktop or mobile version.
+reminders can be sent to multiple parties by email and SMS text message.
 
 -- REQUIREMENTS --
 

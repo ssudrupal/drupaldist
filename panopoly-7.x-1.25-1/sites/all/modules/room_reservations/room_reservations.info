@@ -11,16 +11,17 @@ dependencies[] = date
 dependencies[] = date_popup
 files[] = room_reservations.inc
 
-; Information added by Drupal.org packaging script on 2014-05-16
-version = "7.x-1.x-dev"
+
+; Information added by Drupal.org packaging script on 2015-01-13
+version = "7.x-1.2"
 core = "7.x"
 project = "room_reservations"
-datestamp = "1400256228"
+datestamp = "1421188081"
 
 
-; Information added by Drupal.org packaging script on 2014-08-13
-version = "7.x-1.0"
+; Information added by Drupal.org packaging script on 2015-04-14
+version = "7.x-2.x-dev"
 core = "7.x"
 project = "room_reservations"
-datestamp = "1407962637"
+datestamp = "1429037585"
 

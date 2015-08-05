@@ -68,7 +68,7 @@
 }
 
 #rooms #tabbedPanels .date {
-  clear: all;
+  clear: both;
   margin: 0;
   text-align: center;
 }
@@ -133,21 +133,25 @@
 }
 
 #rooms .panel .gcolumns li.timeslot {
-  background-color: #ffffff;
+  background-color: #fff;
   *height: 1.33em;
   *margin-bottom: 2px;
 }
 
 #rooms .panel .gcolumns li.reservable {
-  background-color: #FFFFFF;
+  background-color: #fff;
 }
 
 #rooms .panel .gcolumns li.open {
-  background-color: #ffffff;
+  background-color: #fff;
 }
 
 #rooms .panel .gcolumns li.booked {
-  background-color: #dddddd;
+  background-color: #ddd;
+}
+
+#rooms .gcolumns li.setup {
+  background-color: #eee;
 }
 
 #rooms .panel .gcolumns li.closed {
@@ -215,5 +219,13 @@
 
 .ui-tooltip-light .ui-tooltip-titlebar {
   width: 244px !important;
+}
+
+#ui-datepicker-div {
+  z-index:2 !important;
+}
+
+#rooms ul li.reservable:hover, #rooms ul li.open:hover {
+  background-color:#FFF;
 }
 

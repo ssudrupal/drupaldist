@@ -14,10 +14,8 @@
  *   reservation being made, updated, or viewed.
  */
 function room_reservations_res_form(&$form_state, $operation, $res) {
-  $reserve_form_instructions_text = check_markup(
-    _room_reservations_get_variable('reserve_form_instructions'));
-  $room_reservations_group_size
-    = variable_get('room_reservations_group_size', 0);
+  $reserve_form_instructions_text = check_markup(_room_reservations_get_variable('reserve_form_instructions'));
+  $room_reservations_group_size = variable_get('room_reservations_group_size', 0);
   $sms_option = _room_reservations_get_variable('sms_option');
   if (($operation == 'add') || ($operation == 'update')) {
     // Options for number of persons in group, from 2 to room capacity.
@@ -213,13 +211,7 @@ function room_reservations_res_form(&$form_state, $operation, $res) {
       );
     }
   }
-  $mobile = _room_reservations_detect_mobile();
-  if ($mobile) {
-    $reminder_columns = 30;
-  }
-  else {
-    $reminder_columns = 60;
-  }
+  $reminder_columns = 60;
   if (($operation == 'add') || ($operation == 'update')) {
     $form['reminders']['email_addresses'] = array(
       '#title' => t('Email Addresses'),
@@ -284,18 +276,10 @@ function room_reservations_res_form(&$form_state, $operation, $res) {
     '#type' => 'value',
     '#value' => $res->room,
   );
-  if ($mobile) {
-    $form['category'] = array(
-      '#type' => 'value',
-      '#value' => $res->room,
-    );
-  }
-  else {
-    $form['category'] = array(
-      '#type' => 'value',
-      '#value' => $res->category,
-    );
-  }
+  $form['category'] = array(
+    '#type' => 'value',
+    '#value' => $res->category,
+  );
   $form['yyyymmdd'] = array(
     '#type' => 'value',
     '#value' => $res->date,
@@ -331,11 +315,10 @@ function room_reservations_res_form_validate($form_id, &$form_state) {
       // Loop through individual messages, looking for ones to remove or
       // replace.
       if (room_reservations_rewrite_error($message) === FALSE) {
-        drupal_set_message(check_plain($message), $type);
+        drupal_set_message($message, $type);
       }
       elseif (room_reservations_rewrite_error($message) !== TRUE) {
-        drupal_set_message(room_reservations_rewrite_error(
-            $message), $type);
+        drupal_set_message(room_reservations_rewrite_error($message), $type);
       }
     }
   }
@@ -431,18 +414,9 @@ function room_reservations_res_form_submit($form_id, &$form_state) {
   $month_name = date("F", strtotime($yyyymmdd));
   // Add.
   if ($form_state['clicked_button']['#value'] == t('Save My Reservation')) {
-    $mobile_db = _room_reservations_detect_mobile_db();
-    if ($mobile_db) {
-      $mainsite = trim(_room_reservations_get_variable('main_database'));
-      db_set_active($mainsite);
-    }
-    $result = db_query("
-      INSERT INTO {room_reservations}
-      (date, time, length, room, name, group_size, user_name, email_addresses,
-        create_date,
-      textmsg, carrier, phone )
-      VALUES ('%s', '%s', %d, '%s', '%s', %d, '%s', '%s', '%s', '%s', %d,
-      '%s')", $yyyymmdd, $time, $length, $room, $group_name, $group_size, $user_name, $email_addresses, date('Y-m-d H:i:s', REQUEST_TIME), $textmsg, $carrier, $phone);
+    $result = db_query("INSERT INTO {room_reservations} (date, time, length, room, name, group_size, user_name, email_addresses, create_date, textmsg, carrier, phone )
+      VALUES ('%s', '%s', %d, '%s', '%s', %d, '%s', '%s', '%s', '%s', %d, '%s')",
+      $yyyymmdd, $time, $length, $room, $group_name, $group_size, $user_name, $email_addresses, date('Y-m-d H:i:s', REQUEST_TIME), $textmsg, $carrier, $phone);
     // Send a confirmation email or text message.
     $id = db_last_insert_id('room_reservations', 'id');
     $params = array(
@@ -453,12 +427,12 @@ function room_reservations_res_form_submit($form_id, &$form_state) {
       'day_of_week' => $day_of_week,
       'time' => $display_hour,
       'minutes' => $length,
-      'name' => check_plain($group_name),
+      'name' => $group_name,
       'id' => $id,
       'carrier' => $carrier,
       'phone' => $phone,
     );
-    $from = check_plain(_room_reservations_get_variable('from_address'));
+    $from = _room_reservations_get_variable('from_address');
     if ($result) {
       drupal_set_message(t('Your group study room reservation has been made.'));
       // Send an email to each person in the group.  If the person is the one
@@ -490,23 +464,12 @@ function room_reservations_res_form_submit($form_id, &$form_state) {
       drupal_set_message(t('Your group study room reservation could not be
          made.'), 'error');
     }
-    if ($mobile_db) {
-      db_set_active('default');
-    }
-    $redirect = "room_reservations/" .
-      $month_number . "/" .
-      $day . "/" .
-      $category;
+    $redirect = "room_reservations/" . $month_number . "/" . $day . "/" . $category;
     $form_state['redirect'] = $redirect;
   }
   // Update.
   elseif ($form_state['clicked_button']['#value'] ==
     t('Update My Reservation')) {
-    $mobile_db = _room_reservations_detect_mobile_db();
-    if ($mobile_db) {
-      $mainsite = trim(_room_reservations_get_variable('main_database'));
-      db_set_active($mainsite);
-    }
     $result = db_query("
       UPDATE {room_reservations}
       SET length = %d,
@@ -526,11 +489,7 @@ function room_reservations_res_form_submit($form_id, &$form_state) {
       drupal_set_message(t('Your group study room reservation could not be
          updated.'), 'error');
     }
-    if ($mobile_db) {
-      db_set_active('default');
-    }
-    $redirect = "room_reservations/" .
-      $month_number . "/" . $day . "/" . $category;
+    $redirect = "room_reservations/" . $month_number . "/" . $day . "/" . $category;
     $form_state['redirect'] = $redirect;
   }
   elseif ($form_state['clicked_button']['#value'] == t('Cancel My Reservation')) {
@@ -591,19 +550,10 @@ function room_reservations_cancel_form(&$form_state, $res) {
     '#type' => 'value',
     '#value' => $res->day,
   );
-  $mobile = _room_reservations_detect_mobile();
-  if ($mobile) {
-    $form['category'] = array(
-      '#type' => 'value',
-      '#value' => $res->room,
-    );
-  }
-  else {
-    $form['category'] = array(
-      '#type' => 'value',
-      '#value' => $res->roomCategory,
-    );
-  }
+  $form['category'] = array(
+    '#type' => 'value',
+    '#value' => $res->roomCategory,
+  );
   $form['user_name_hold'] = array(
     '#type' => 'value',
     '#value' => $res->userName,
@@ -631,24 +581,12 @@ function room_reservations_cancel_form_submit($form_id, &$form_state) {
   $category = $form_state['values']['category'];
   // Delete.
   if ($form_state['clicked_button']['#value'] == t('Cancel My Reservation')) {
-    $mobile_db = _room_reservations_detect_mobile_db();
-    if ($mobile_db) {
-      $mainsite = trim(_room_reservations_get_variable('main_database'));
-      db_set_active($mainsite);
-    }
-    $result = db_query("
-      UPDATE {room_reservations}
-      SET deleted = '%s',
-      update_date = '%s'
-      WHERE id = %d", 'Y', date('Y-m-d H:i:s', REQUEST_TIME), $id);
+    $result = db_query("UPDATE {room_reservations} SET deleted = '%s', update_date = '%s' WHERE id = %d", 'Y', date('Y-m-d H:i:s', REQUEST_TIME), $id);
     if ($result) {
       drupal_set_message(t('Your group study room reservation has been cancelled.'));
     }
     else {
       drupal_set_message(t('Your group study room reservation could not be cancelled.'), 'error');
-    }
-    if ($mobile_db) {
-      db_set_active('default');
     }
   }
   $redirect = "room_reservations/" . $month_number . "/" . $day . "/" . $category;
