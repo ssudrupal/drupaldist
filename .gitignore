@@ -16,3 +16,5 @@ DEADJOE
 *.swp
 .DS_Store
 
+# More things to ignore
+ssu-test
