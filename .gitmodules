@@ -1,0 +1,3 @@
+[submodule "panopoly"]
+	path = panopoly
+	url = git://git.drupal.org/project/panopoly.git
