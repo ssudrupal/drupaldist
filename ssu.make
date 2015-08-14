@@ -1,0 +1,46 @@
+api = 2
+core = 7.x
+
+includes[panopoly-build-panopoly] = panopoly/build-panopoly.make
+
+projects[] = addressfield
+projects[] = advanced_help
+projects[] = backup_migrate
+projects[] = calendar
+projects[] = cas
+projects[] = email
+projects[] = entityreference_prepopulate
+projects[] = entity_view_mode
+projects[] = facetapi
+projects[] = feeds
+projects[] = feeds_tamper
+projects[] = field_permissions
+projects[] = geocoder
+projects[] = geofield
+projects[] = geophp
+projects[] = google_analytics
+projects[] = job_scheduler
+projects[] = ldap
+projects[] = leaflet
+projects[] = leaflet_more_maps
+projects[] = masquerade
+projects[] = message
+projects[] = message_notify
+projects[] = node_limit
+projects[] = office_hours
+projects[] = og
+projects[] = og_fpp
+projects[] = opening_hours
+projects[] = registration
+projects[] = roleassign
+projects[] = room_reservations
+projects[] = rules
+projects[] = securelogin
+projects[] = semanticviews
+projects[] = simple_ldap
+projects[] = taxonomy_menu
+projects[] = tipsy
+projects[] = video_embed_field
+projects[] = webform
+projects[] = xmlsitemap
+
