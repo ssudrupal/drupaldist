@@ -12,6 +12,7 @@
 
 # Ignore common editor temp files and whatnot:
 *~
+DEADJOE
 *.swp
 .DS_Store
 
