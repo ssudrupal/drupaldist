@@ -1,7 +1,5 @@
 #!/bin/sh
 
-CORE=$(grep '= "core"' ssu-lock.make | cut -d[ -f2 | cut -d] -f1)
-COREVER=$(grep "projects\[$CORE\]\[version\]" ssu-lock.make | cut -d= -f2 | cut -d'"' -f2)
 DATE=$(date +%Y%m%d)
 
 git pull
@@ -11,8 +9,12 @@ git commit -m auto ssu-lock.make
 perl -p -i.bak -e 'if (m/^projects\[panopoly\]\[version\]/ and not m/7.x/) { s/ = "/ = "7.x-/; }' ssu-lock.make
 git commit -m 'version fix' ssu-lock.make
 
+CORE=$(grep '= "core"' ssu-lock.make | cut -d[ -f2 | cut -d] -f1)
+COREVER=$(grep "projects\[$CORE\]\[version\]" ssu-lock.make | cut -d= -f2 | cut -d'"' -f2)
 
 OUTPUTDIR="$CORE-$COREVER-$DATE"
+
+rm -rf $OUTPUTDIR
 
 drush make ssu-lock.make $OUTPUTDIR
 
