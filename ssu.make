@@ -1,7 +1,6 @@
 api = 2
 core = 7.x
 
-# includes[panopoly-build-panopoly] = panopoly/build-panopoly.make
 projects[panopoly][type] = core
 
 projects[] = addressfield
