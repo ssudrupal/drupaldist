@@ -1,5 +1,7 @@
 #!/bin/sh
 
+git gc --auto
+
 DATE=$(date +%Y%m%d)
 LOCK="ssu-lock.make"
 DATELOCK="ssu-lock-$DATE.make"
@@ -42,3 +44,7 @@ git push
 echo; echo ; echo
 echo === Your new distribution is: $OUTPUTDIR
 echo === For aegir, use $LOCK
+
+git prune
+git gc --auto --quiet
+
