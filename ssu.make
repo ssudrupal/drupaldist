@@ -3,7 +3,7 @@ core = 7.x
 
 projects[panopoly][type] = core
 
-# projects[] = addressfield
+projects[] = addressfield
 projects[] = advanced_help
 projects[] = backup_migrate
 projects[] = calendar

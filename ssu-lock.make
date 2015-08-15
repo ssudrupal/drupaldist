@@ -7,6 +7,8 @@ projects[panopoly][type] = "core"
 projects[panopoly][version] = "7.x-1.25"
 
 ; Modules
+projects[addressfield][version] = "1.1"
+
 projects[advanced_help][version] = "1.3"
 
 projects[backup_migrate][version] = "3.1"
