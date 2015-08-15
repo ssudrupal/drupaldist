@@ -37,6 +37,8 @@ find $OUTPUTDIR -type d -print0 | xargs --null chmod g+s
 git add $LOCK
 git commit -v ssu.make $LOCK
 
+git push
+
 echo; echo ; echo
 echo === Your new distribution is: $OUTPUTDIR
 echo === For aegir, use $LOCK
