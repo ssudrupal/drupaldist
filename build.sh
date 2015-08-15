@@ -30,8 +30,8 @@ OUTPUTDIR="$CORE-$COREVER-$DATE"
 rm -rf $OUTPUTDIR
 drush make $LOCK $OUTPUTDIR
 
-chgrp -R drupal $OUTPUTDIR
-chmod -R g+w $OUTPUTDIR
+chgrp -R drupal $OUTPUTDIR $LOCK $DATELOCK
+chmod -R g+w $OUTPUTDIR $LOCK $DATELOCK
 find $OUTPUTDIR -type d -print0 | xargs --null chmod g+s
 
 git add $LOCK
