@@ -43,8 +43,7 @@ git push
 
 echo; echo ; echo
 echo === Your new distribution is: $OUTPUTDIR
-echo === For aegir, use $LOCK
+echo === For aegir, use $DATELOCK
 
 git prune
 git gc --auto --quiet
-
