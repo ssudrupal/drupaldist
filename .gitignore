@@ -18,4 +18,9 @@ DEADJOE
 
 # More things to ignore
 ssu-test
-panopoly-7.x-*
+
+# Automatically added things
+panopoly-7.x-1.22-0
+panopoly-7.x-1.25-2
+panopoly-7.x-1.25-20150814
+panopoly-7.x-1.25-20150817
