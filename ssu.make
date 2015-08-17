@@ -1,3 +1,4 @@
+; $Id$
 api = 2
 core = 7.x
 
@@ -7,3 +8,7 @@ projects[panopoly][type] = core
 includes[ssu-modules] = "ssu-modules.make"
 ; includes[ssu-modules-pinned] = "ssu-modules-pinned.make"
 includes[ssu-libraries] = "ssu-libraries.make"
+
+; examples of all the things are here:
+; https://www.drupal.org/node/1432374
+
