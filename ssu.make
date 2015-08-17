@@ -5,5 +5,5 @@ core = 7.x
 projects[panopoly][type] = core
 
 includes[ssu-modules] = ssu-modules.make
-includes[ssu-modules] = ssu-modules-pinned.make
+includes[ssu-modules-pinned] = ssu-modules-pinned.make
 includes[ssu-libraries] = ssu-libraries.make
