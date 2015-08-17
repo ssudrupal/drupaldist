@@ -39,6 +39,8 @@ projects[geophp][version] = "1.7"
 
 projects[google_analytics][version] = "2.1"
 
+projects[highcharts][version] = "1.0-alpha6"
+
 projects[job_scheduler][version] = "2.0-alpha3"
 
 projects[ldap][version] = "2.0-beta8"

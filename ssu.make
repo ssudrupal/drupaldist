@@ -19,6 +19,7 @@ projects[] = geocoder
 projects[] = geofield
 projects[] = geophp
 projects[] = google_analytics
+projects[] = highcharts
 projects[] = job_scheduler
 projects[] = ldap
 projects[] = leaflet
