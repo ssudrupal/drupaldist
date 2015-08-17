@@ -1,0 +1,5 @@
+# projects[example1][version] = "1.12"
+# projects[example2][version] = "3.7-rc2"
+# projects[example3][version] = "2.1-beta1"
+# projects[example4][version] = "1.1-alpha1"
+# projects[example5][version] = "2.x-dev"
