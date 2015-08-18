@@ -40,19 +40,24 @@ if ! [ -e $DATELOCK ]; then # No DATELOCK yet
   cp $LOCK $DATELOCK
   git add $DATELOCK
   git commit -m "Auto copied from $LOCK" $DATELOCK
+  DATELOCKUPDATED=y
 elif cmp $LOCK $DATELOCK; then # no changes
   echo === $DATELOCK already like $LOCK
   git add $DATELOCK
   git commit -m "Already like $LOCK" $DATELOCK
+  DATELOCKUPDATED=n
 else
   echo "=== There is already a locked makefile for today ($DATELOCK)."
   echo "=== Here are the differences: "
   diff -u $DATELOCK $LOCK
-  read -p "=== Would you like to overwrite $DATELOCK with those changes? [y/N] " OVERWRITEDATELOCK
+  read -p "=== Would you like to overwrite $DATELOCK with these changes? [y/N] " OVERWRITEDATELOCK
   if [ -n "$OVERWRITEDATELOCK" ] && [ $OVERWRITEDATELOCK = "y" -o $OVERWRITEDATELOCK = "Y" ]; then
     cp -f $LOCK $DATELOCK
     git add $DATELOCK
     git commit -m "Forced overwritten from $LOCK" $DATELOCK
+    DATELOCKUPDATED=y
+  else
+    DATELOCKUPDATED=n
   fi
 fi
 
@@ -63,6 +68,11 @@ if ! [ -d $OUTPUTDIR ]; then
   drush make $DATELOCK $OUTPUTDIR
 else
   echo "=== $OUTPUTDIR already exists."
+  if [ $DATELOCKUPDATED = y ]; then
+    echo "=== $DATELOCK is modified, so you probably want to recreate $OUTPUTDIR."
+  else
+    echo "=== $DATELOCK is unchanged, so $OUTPUTDIR probably should be left alone."
+  fi
   read -p "=== Would you like to destroy $OUTPUTDIR? [y/N] " OVERWRITEOUTPUTDIR
   if [ -n "$OVERWRITEOUTPUTDIR" ] && [ $OVERWRITEOUTPUTDIR = "y" -o $OVERWRITEOUTPUTDIR = "Y" ]; then
     rm -rf $OUTPUTDIR
