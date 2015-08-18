@@ -7,7 +7,7 @@ git gc --auto
 DATE=$(date +%Y%m%d)
 
 # The makefile we build with versions locked, used to track changes
-LOCK="ssu-lock.make"
+LOCK="make.lock"
 
 # Make sure we have the latest copy of our makefile, etc
 git pull
