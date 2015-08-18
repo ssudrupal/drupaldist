@@ -1,8 +1,10 @@
-
-projects[] = advanced_help
+; $Id$
+; This is only for modules we always want the latest version of.
+; For modules we want to lock down to a specific version, put them in
+;   ssu-modules-pinned.make.
 
 projects[] = addressfield
-
+projects[] = advanced_help
 projects[] = backup_migrate
 projects[] = calendar
 projects[] = cas

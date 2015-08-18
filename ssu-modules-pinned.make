@@ -1,5 +1,9 @@
+; $Id$
 ; Not yet included in ssu.make
 ; uncomment there to actually use
+
+; This is where we put modules we want locked/pinned down to a specific
+; version, instead of updated to the very latest.
 
 ; examples:
 ; projects[example1] = 1.12
