@@ -46,7 +46,9 @@ elif cmp $LOCK $DATELOCK; then # no changes
   git commit -m "Already like $LOCK" $DATELOCK
 else
   echo "=== There is already a locked makefile for today ($DATELOCK)."
-  read -p "=== Would you like to overwrite $DATELOCK? [y/N] " OVERWRITEDATELOCK
+  echo "=== Here are the differences: "
+  diff -u $DATELOCK $LOCK
+  read -p "=== Would you like to overwrite $DATELOCK with those changes? [y/N] " OVERWRITEDATELOCK
   if [ -n "$OVERWRITEDATELOCK" ] && [ $OVERWRITEDATELOCK = "y" -o $OVERWRITEDATELOCK = "Y" ]; then
     cp -f $LOCK $DATELOCK
     git add $DATELOCK
