@@ -1,5 +1,8 @@
-projects[] = addressfield
+
 projects[] = advanced_help
+
+projects[] = addressfield
+
 projects[] = backup_migrate
 projects[] = calendar
 projects[] = cas
