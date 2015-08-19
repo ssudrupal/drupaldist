@@ -18,6 +18,20 @@ drush make --no-build ssu.make --lock=$LOCK
 # Temporary fix for version problem with alternate cores
 perl -p -i -e 'if (m/^projects\[panopoly\]\[version\]/ and not m/7.x/) { s/ = "/ = "7.x-/; }' $LOCK
 
+# Check if there's any changes
+if git diff --quiet $LOCK; then
+  echo "=== $LOCK has not changed since the last run."
+  echo "=== That means there's probably no point in proceeding."
+  read -p "=== Would you like to proceed anyways? [y/N] " PROCEEDUNCHANGED
+  if [ -n "$PROCEEDUNCHANGED" ] && [ $PROCEEDUNCHANGED = "y" -o $PROCEEDUNCHANGED = "Y" ]; then
+    echo "=== Ok, we're proceeding anyways"
+  else
+    echo "=== Exiting"
+    exit 0
+  fi
+fi
+  
+
 # Extract which core/distribution we're using
 CORE=$(grep '= "core"' $LOCK | cut -d[ -f2 | cut -d] -f1)
 # and what version it is
