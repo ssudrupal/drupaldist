@@ -1,7 +1,7 @@
 #!/bin/sh
 
 # Collect git garbage to make thing stay small
-git gc --auto
+git gc --auto > /dev/null
 
 # Date in YYYYMMDD format for use in filenames
 DATE=$(date +%Y%m%d)
@@ -10,7 +10,7 @@ DATE=$(date +%Y%m%d)
 LOCK="make.lock"
 
 # Make sure we have the latest copy of our makefile, etc
-git pull
+git pull > /dev/null
 
 # Make new locked makefile
 drush make --no-build ssu.make --lock=$LOCK
