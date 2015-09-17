@@ -34,7 +34,6 @@ projects[] = og_fpp
 projects[] = opening_hours
 projects[] = registration
 projects[] = roleassign
-projects[] = room_reservations
 projects[] = rules
 projects[] = securelogin
 projects[] = semanticviews

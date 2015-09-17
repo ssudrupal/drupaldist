@@ -69,8 +69,6 @@ projects[registration][version] = "1.5"
 
 projects[roleassign][version] = "1.0"
 
-projects[room_reservations][version] = "2.x-dev"
-
 projects[rules][version] = "2.9"
 
 projects[securelogin][version] = "1.5"
