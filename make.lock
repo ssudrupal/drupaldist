@@ -83,7 +83,7 @@ projects[tipsy][version] = "1.0-rc1"
 
 projects[video_embed_field][version] = "2.0-beta11"
 
-projects[webform][version] = "4.10"
+projects[webform][version] = "4.11"
 
 projects[xmlsitemap][version] = "2.2"
 
