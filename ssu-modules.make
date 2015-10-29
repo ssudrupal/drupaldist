@@ -42,4 +42,7 @@ projects[] = taxonomy_menu
 projects[] = tipsy
 projects[] = video_embed_field
 projects[] = webform
+projects[] = workbench
+projects[] = workbench_access
+projects[] = workbench_moderation
 projects[] = xmlsitemap
