@@ -4,7 +4,7 @@ api = 2
 
 ; Core
 projects[panopoly][type] = "core"
-projects[panopoly][version] = "7.x-1.29"
+projects[panopoly][version] = "7.x-1.30"
 
 ; Modules
 projects[addressfield][version] = "1.2"
@@ -51,7 +51,7 @@ projects[leaflet_more_maps][version] = "1.14"
 
 projects[masquerade][version] = "1.0-rc7"
 
-projects[message][version] = "1.10"
+projects[message][version] = "1.11"
 
 projects[message_notify][version] = "2.5"
 
