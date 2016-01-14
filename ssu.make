@@ -7,6 +7,8 @@ projects[panopoly][type] = core
 
 ; Include these other makefiles:
 includes[ssu-modules] = "ssu-modules.make"
+includes[ssu-modules-buildamodule] = "ssu-modules-buildamodule.make"
+
 ; includes[ssu-modules-pinned] = "ssu-modules-pinned.make"
 includes[ssu-libraries] = "ssu-libraries.make"
 
