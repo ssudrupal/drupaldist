@@ -3,7 +3,7 @@
 ; For modules we want to lock down to a specific version, put them in
 ;   ssu-modules-pinned.make.
 
-core: 7.x
+core = 7.x
 
 projects[] = pathauto
 projects[] = webform
