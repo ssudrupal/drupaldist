@@ -6,6 +6,8 @@ git gc --auto > /dev/null
 # Date in YYYYMMDD format for use in filenames
 DATE=$(date +%Y%m%d)
 
+MAKE="${MAKE}"
+
 # The makefile we build with versions locked, used to track changes
 LOCK="make.lock"
 
@@ -13,7 +15,7 @@ LOCK="make.lock"
 git pull > /dev/null
 
 # Make new locked makefile
-drush make --no-build ssu.make --lock=$LOCK
+drush make --no-build ${MAKE} --lock=$LOCK
 
 # Temporary fix for version problem with alternate cores
 perl -p -i -e 'if (m/^projects\[panopoly\]\[version\]/ and not m/7.x/) { s/ = "/ = "7.x-/; }' $LOCK
@@ -110,7 +112,7 @@ git add $LOCK
 
 # Commit the manually edited makefiles, with verbosity so changes are shown
 #   to user.
-git commit -v ssu.make $LOCK ssu-*.make
+git commit -v ${MAKE} $LOCK ssu-*.make
 
 # Push changes upstream
 git push
