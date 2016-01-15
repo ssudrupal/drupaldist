@@ -10,10 +10,10 @@ MAKEFILES=$(find . -maxdepth 1 -name \*.make -not -name \*-\*)
 
 for MAKE in $MAKEFILES; do
 
-  local BASENAME=$(basename ${MAKE} .make)
+  BASENAME=$(basename ${MAKE} .make)
 
   # The makefile we build with versions locked, used to track changes
-  local LOCK="${BASENAME}.lock"
+  LOCK="${BASENAME}.lock"
 
   # Make sure we have the latest copy of our makefile, etc
   git pull > /dev/null
@@ -39,22 +39,20 @@ for MAKE in $MAKEFILES; do
     
 
   # Extract which core/distribution we're using
-  local CORE=$(grep '= "core"' $LOCK | cut -d[ -f2 | cut -d] -f1)
+  CORE=$(grep '= "core"' $LOCK | cut -d[ -f2 | cut -d] -f1)
   # and what version it is
-  local COREVER=$(grep "projects\[$CORE\]\[version\]" $LOCK | cut -d= -f2 | cut -d'"' -f2)
+  COREVER=$(grep "projects\[$CORE\]\[version\]" $LOCK | cut -d= -f2 | cut -d'"' -f2)
 
   # The directory we're going to put a distro into
-  local OUTPUTDIR="$BASENAME-$COREVER-$DATE"
+  OUTPUTDIR="$BASENAME-$COREVER-$DATE"
 
   # A locked makefile that (usually) doesn't change, named to obviously match
   # the distro directory it was used to make
-  local DATELOCK="$OUTPUTDIR.make"
+  DATELOCK="$OUTPUTDIR.make"
 
   # If there's no DATELOCK file, then go ahead and copy our lockfile to it
   # If it exists, but is the same as our lockfile, do nothing
   # If it exists, and is different, prompt the user about whether or not to change it.
-
-  local DATELOCKUPDATED
 
   if ! [ -e $DATELOCK ]; then # No DATELOCK yet
     cp $LOCK $DATELOCK
