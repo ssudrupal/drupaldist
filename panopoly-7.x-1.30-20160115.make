@@ -7,30 +7,6 @@ projects[panopoly][type] = "core"
 projects[panopoly][version] = "7.x-1.30"
 
 ; Modules
-projects[pathauto][version] = "1.3"
-
-projects[webform][version] = "4.12"
-
-projects[token][version] = "1.6"
-
-projects[views][version] = "3.13"
-
-projects[ctools][version] = "1.9"
-
-projects[date][version] = "2.9"
-
-projects[references][version] = "2.1"
-
-projects[wysiwyg][version] = "2.2"
-
-projects[masquerade][version] = "1.0-rc7"
-
-projects[media][version] = "2.0-beta1"
-
-projects[css_injector][version] = "1.10"
-
-projects[styles][version] = "2.0-alpha8"
-
 projects[addressfield][version] = "1.2"
 
 projects[advanced_help][version] = "1.3"
@@ -73,6 +49,8 @@ projects[leaflet][version] = "1.3"
 
 projects[leaflet_more_maps][version] = "1.14"
 
+projects[masquerade][version] = "1.0-rc7"
+
 projects[message][version] = "1.11"
 
 projects[message_notify][version] = "2.5"
@@ -104,6 +82,8 @@ projects[taxonomy_menu][version] = "1.5"
 projects[tipsy][version] = "1.0-rc1"
 
 projects[video_embed_field][version] = "2.0-beta11"
+
+projects[webform][version] = "4.12"
 
 projects[workbench][version] = "1.2"
 
