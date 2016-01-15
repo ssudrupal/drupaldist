@@ -10,7 +10,6 @@ MAKEFILES=$(find . -maxdepth 1 -name \*.make -not -name \*-\*)
 
 for MAKE in $MAKEFILES; do
 
-  MAKE="panopoly.make"
   BASENAME=$(basename ${MAKE} .make)
 
   # The makefile we build with versions locked, used to track changes
