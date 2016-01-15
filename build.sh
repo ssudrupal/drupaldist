@@ -6,9 +6,17 @@ git gc --auto > /dev/null
 # Date in YYYYMMDD format for use in filenames
 DATE=$(date +%Y%m%d)
 
-MAKEFILES=$(find . -maxdepth 1 -name \*.make -not -name \*-\*)
+MAKEFILES=$(find . -maxdepth 1 -name \*.make -not -name \*-\* | cut -d '/' -f2)
+MAKEFILES=$(echo $MAKEFILES | tr '\n' ' ')
+
+echo "=== Makefiles to process: $MAKEFILES"
 
 for MAKE in $MAKEFILES; do
+  read -p "=== Would you like to process $MAKE? [Y/n] " PROCESSTHISMAKE
+  if [ "$PROCESSTHISMAKE" = "n" -o "$PROCESSTHISMAKE" = "N" ]; then
+    echo "=== Ok, skipping $MAKE"
+    continue
+  fi
 
   BASENAME=$(basename ${MAKE} .make)
 
@@ -32,8 +40,8 @@ for MAKE in $MAKEFILES; do
     if [ -n "$PROCEEDUNCHANGED" ] && [ $PROCEEDUNCHANGED = "y" -o $PROCEEDUNCHANGED = "Y" ]; then
       echo "=== Ok, we're proceeding anyways"
     else
-      echo "=== Exiting"
-      exit 0
+      echo "=== Move onto the next make"
+      continue
     fi
   fi
     
@@ -55,6 +63,7 @@ for MAKE in $MAKEFILES; do
   # If it exists, and is different, prompt the user about whether or not to change it.
 
   if ! [ -e $DATELOCK ]; then # No DATELOCK yet
+
     cp $LOCK $DATELOCK
     git add $DATELOCK
     git commit -m "Auto copied from $LOCK" $DATELOCK
@@ -114,7 +123,7 @@ for MAKE in $MAKEFILES; do
 
   # Commit the manually edited makefiles, with verbosity so changes are shown
   #   to user.
-  git commit -v ${MAKE} $LOCK ssu-*.make
+  git commit -v ${MAKE} $LOCK $BASENAME-*.make
 
   # Push changes upstream
   git push

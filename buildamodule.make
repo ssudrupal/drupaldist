@@ -3,7 +3,9 @@
 ; For modules we want to lock down to a specific version, put them in
 ;   ssu-modules-pinned.make.
 
+api = 2
 core = 7.x
+projects[] = drupal
 
 projects[] = pathauto
 projects[] = webform
