@@ -6,11 +6,11 @@ git gc --auto > /dev/null
 # Date in YYYYMMDD format for use in filenames
 DATE=$(date +%Y%m%d)
 
-MAKE="${MAKE}"
+MAKE="panopoly.make"
 BASENAME=$(basename ${MAKE} .make)
 
 # The makefile we build with versions locked, used to track changes
-LOCK="${MAKE}.lock"
+LOCK="${BASENAME}.lock"
 
 # Make sure we have the latest copy of our makefile, etc
 git pull > /dev/null
@@ -40,9 +40,8 @@ CORE=$(grep '= "core"' $LOCK | cut -d[ -f2 | cut -d] -f1)
 # and what version it is
 COREVER=$(grep "projects\[$CORE\]\[version\]" $LOCK | cut -d= -f2 | cut -d'"' -f2)
 
-
 # The directory we're going to put a distro into
-OUTPUTDIR="$CORE-$COREVER-$DATE"
+OUTPUTDIR="$BASENAME-$COREVER-$DATE"
 
 # A locked makefile that (usually) doesn't change, named to obviously match
 # the distro directory it was used to make
