@@ -7,9 +7,10 @@ git gc --auto > /dev/null
 DATE=$(date +%Y%m%d)
 
 MAKE="${MAKE}"
+BASENAME=$(basename ${MAKE} .make)
 
 # The makefile we build with versions locked, used to track changes
-LOCK="make.lock"
+LOCK="${MAKE}.lock"
 
 # Make sure we have the latest copy of our makefile, etc
 git pull > /dev/null
