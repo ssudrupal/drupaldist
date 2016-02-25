@@ -25,7 +25,7 @@ projects[entity_view_mode][version] = "1.0-rc1"
 
 projects[facetapi][version] = "1.5"
 
-projects[feeds][version] = "2.0-beta1"
+projects[feeds][version] = "2.0-beta2"
 
 projects[feeds_tamper][version] = "1.1"
 
