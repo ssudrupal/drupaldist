@@ -4,7 +4,7 @@ api = 2
 
 ; Core
 projects[panopoly][type] = "core"
-projects[panopoly][version] = "7.x-1.33"
+projects[panopoly][version] = "7.x-1.34"
 
 ; Modules
 projects[addressfield][version] = "1.2"
@@ -61,7 +61,7 @@ projects[node_limit][version] = "1.0-alpha5"
 
 projects[office_hours][version] = "1.4"
 
-projects[og][version] = "2.8"
+projects[og][version] = "2.9"
 
 projects[og_fpp][version] = "1.0-alpha1"
 
