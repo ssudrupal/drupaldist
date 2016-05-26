@@ -95,7 +95,7 @@ projects[workbench_access][version] = "1.4"
 
 projects[workbench_moderation][version] = "1.4"
 
-projects[xmlsitemap][version] = "2.2"
+projects[xmlsitemap][version] = "2.3"
 
 ; Libraries
 libraries[highcharts][download][type] = "file"
