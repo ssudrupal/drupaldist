@@ -121,6 +121,11 @@ for MAKE in $MAKEFILES; do
   # Make sure old locked makefile is tracked by git
   git add $LOCK
 
+
+  # Spit the change to the screen:
+  echo "=== Here's what's changed:"
+  git diff $LOCK $BASENAME-*.make
+  
   # Commit the manually edited makefiles, with verbosity so changes are shown
   #   to user.
   git commit -v ${MAKE} $LOCK $BASENAME-*.make
