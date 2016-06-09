@@ -69,7 +69,7 @@ projects[opening_hours][version] = "1.6"
 
 projects[registration][version] = "1.6"
 
-projects[roleassign][version] = "1.0"
+projects[roleassign][version] = "1.1"
 
 projects[rules][version] = "2.9"
 
