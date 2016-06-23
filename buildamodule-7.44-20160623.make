@@ -35,3 +35,5 @@ projects[ckeditor][version] = "1.17"
 
 projects[field_collection][version] = "1.0-beta11"
 
+projects[entity][version] = "1.7"
+
