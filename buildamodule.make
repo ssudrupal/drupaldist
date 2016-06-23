@@ -20,3 +20,4 @@ projects[] = media
 projects[] = css_injector
 projects[] = styles
 projects[] = ckeditor
+projects[] = field_collection
