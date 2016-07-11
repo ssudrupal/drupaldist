@@ -1,0 +1,9 @@
+[submodule "kwall-20160620_233346"]
+	path = kwall-20160620_233346
+	url = git@git.kwallco.com:kwall/sonoma.git
+[submodule "kwall-20160622_000216"]
+	path = kwall-20160622_000216
+	url = git@git.kwallco.com:kwall/sonoma.git
+[submodule "kwall-20160707-0"]
+	path = kwall-20160707-0
+	url = git@git.kwallco.com:kwall/sonoma.git
