@@ -51,7 +51,7 @@ projects[leaflet_more_maps][version] = "1.16"
 
 projects[masquerade][version] = "1.0-rc7"
 
-projects[message][version] = "1.11"
+projects[message][version] = "1.12"
 
 projects[message_notify][version] = "2.5"
 
