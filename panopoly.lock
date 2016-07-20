@@ -67,6 +67,8 @@ projects[og_fpp][version] = "1.0-alpha1"
 
 projects[opening_hours][version] = "1.6"
 
+projects[redirect_404][version] = "1.1"
+
 projects[registration][version] = "1.6"
 
 projects[roleassign][version] = "1.1"

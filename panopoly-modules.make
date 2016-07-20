@@ -33,6 +33,7 @@ projects[] = office_hours
 projects[] = og
 projects[] = og_fpp
 projects[] = opening_hours
+projects[] = redirect_404
 projects[] = registration
 projects[] = roleassign
 projects[] = rules
