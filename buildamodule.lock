@@ -9,7 +9,7 @@ projects[drupal][type] = "core"
 ; Modules
 projects[pathauto][version] = "1.3"
 
-projects[webform][version] = "4.12"
+projects[webform][version] = "4.13"
 
 projects[token][version] = "1.6"
 
