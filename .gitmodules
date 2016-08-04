@@ -22,3 +22,6 @@
 [submodule "kwall-20160725-0"]
 	path = kwall-20160725-0
 	url = git@github-appliance.sonoma.edu:drupal/kwall.git
+[submodule "kwall-20160804-0"]
+	path = kwall-20160804-0
+	url = git@git.kwallco.com:kwall/sonoma.git
