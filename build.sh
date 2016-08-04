@@ -128,9 +128,11 @@ for MAKE in $MAKEFILES; do
   
   # Commit the manually edited makefiles, with verbosity so changes are shown
   #   to user.
+  echo "=== Committing changes"
   git commit -v ${MAKE} $LOCK $BASENAME-*.make
 
   # Push changes upstream
+  echo "=== Pushing changes"
   git push
 
   # And output the useful information to the user
@@ -139,5 +141,6 @@ for MAKE in $MAKEFILES; do
   echo === For aegir, use $DATELOCK
 done
 
+echo "=== Cleaning up some git stuff"
 git prune
 git gc --auto --quiet
