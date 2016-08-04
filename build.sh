@@ -3,6 +3,9 @@
 # Collect git garbage to make thing stay small
 git gc --auto > /dev/null
 
+# Temporarily make things faster
+git config core.ignoreStat true
+
 # Date in YYYYMMDD format for use in filenames
 DATE=$(date +%Y%m%d)
 
@@ -144,3 +147,6 @@ done
 echo "=== Cleaning up some git stuff"
 git prune
 git gc --auto --quiet
+
+# kill the speedboost, since it ruins "git stat"
+git config core.ignoreStat false
