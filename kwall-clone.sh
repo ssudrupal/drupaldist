@@ -16,6 +16,8 @@ git submodule add git@git.kwallco.com:kwall/sonoma.git "kwall-${DATE}-${INCREMEN
   cd "kwall-${DATE}-${INCREMENT}"
   git remote set-url origin git@github-appliance.sonoma.edu:drupal/kwall.git
   git push
+  cd sites/default
+  ln -sf /var/www/drupalfiles/default files
 )
 
 git commit -m "Pulling latest source from KWALL" .gitmodules "kwall-${DATE}-${INCREMENT}"
